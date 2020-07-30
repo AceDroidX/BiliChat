@@ -6,9 +6,12 @@ import { environment } from '../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { TranslateService } from '@ngx-translate/core';
 import { YouTube } from './ytb-live-chat.service';
-const request = require('request')
-const { EventEmitter } = require('events')
-
+//import request from 'request'
+import { EventEmitter } from 'events'
+const axios = require('axios')
+@Injectable({
+  providedIn: 'root'
+})
 export class YtbMsgService {
 
   private ws: WebSocket;
@@ -64,7 +67,9 @@ export class YtbMsgService {
   }
 }
 
-
+@Injectable({
+  providedIn: 'root'
+})
 export class YtbMessageProcessorService extends EventEmitter {
 
   // showMember:boolean;
@@ -105,7 +110,7 @@ export class YtbMessageProcessorService extends EventEmitter {
     if (this.pure) {
       return of(environment.default_avatar);
     }
-    request(jsondata.authorDetails.profileImageUrl, data => {
+    this.request(jsondata.authorDetails.profileImageUrl, data => {
       return data
     })
     // const obs = this.http.get(`${environment.ytb_api_server}/avturl/${jsondata.authorDetails.profileImageUrl}`)
@@ -138,19 +143,23 @@ export class YtbMessageProcessorService extends EventEmitter {
     //   obs
     // );
   }
-  request(url, callback) {
-    request({
-      url: url,
-      method: 'GET',
-      json: true,
-    }, (error, response, data) => {
-      if (error)
-        this.emit('error', error)
-      else if (response.statusCode !== 200)
-        this.emit('error', data)
-      else
-        callback(data)
-    })
+  request(url, callback) {//https://yt3.ggpht.com/a-/AOh14Ghoj4Gh2t8XqyAR4MCtGe7_5tjigH6HuctULQ=s68-c-k-c0x00ffffff-no-rj-mo
+    if (environment.ytb_proxy) {
+      url = url.replace(environment.ytb_icon_prefix, environment.ytb_api_server+'/icon')
+    }
+    console.log(url)
+    axios.get(url)
+      .then(response => {
+        if (response.status !== 200) {
+          this.emit('error', response)
+        } else {
+          callback(response)
+        }
+      })
+      .catch(error => { this.emit('error', error) })
+      .then(function () {
+        // always executed
+      });
   }
 }
 

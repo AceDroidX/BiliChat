@@ -7,9 +7,10 @@ export const environment = {
   production: false,
   api_server: 'http://127.0.0.1:5000/api', // bilichat.js 提供了一个简易后端服务实现
   ytb_proxy: true,
-  ytb_proxy_host: '127.0.0.1',
-  ytb_proxy_port: '1080',
-  ytb_APIKEY:'',
+  ytb_api_prefix: 'https://www.googleapis.com/youtube/v3',
+  ytb_icon_prefix: 'https://yt3.ggpht.com',
+  ytb_api_server: 'http://127.0.0.1:5000/ytbapi',
+  ytb_APIKEY: 'AIzaSyDufhHPHYwovFp3m7QipZFnZ7A1uMzSKtM',
   default_avatar: 'https://static.hdslb.com/images/member/noface.gif'
 };
 

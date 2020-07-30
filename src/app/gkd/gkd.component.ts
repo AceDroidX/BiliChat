@@ -175,11 +175,15 @@ export class GKDComponent {
         this.start(realRoomId); // 重连
       }
     );
+    if(!this.route.snapshot.queryParamMap.has('ytbRoomId')){
+      return
+    }
     this.ytbmsg.connect(this.ytbproc.ytbRoomId).subscribe(
       message => {
         this.renderer.sendDanmaku(message);
       },
       e => {
+        console.error(e)
         this.renderer.sendDanmaku(new DanmakuMessage(
           -1,
           'BILICHAT',

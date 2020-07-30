@@ -1,7 +1,8 @@
 // 由https://github.com/yuta0801/youtube-live-chat 修改而来
 import { environment } from '../environments/environment';
-const request = require('request')
-const { EventEmitter } = require('events')
+//import request from 'request'
+import { EventEmitter } from 'events'
+const axios = require('axios')
 
 /**
  * The main hub for acquire live chat with the YouTube Date API.
@@ -25,13 +26,14 @@ export class YouTube extends EventEmitter {
     }
 
     getLive() {
-        const url = 'https://www.googleapis.com/youtube/v3/search' +
+        const url = '/search' +
             '?eventType=live' +
             '&part=id' +
             `&channelId=${this.id}` +
             '&type=video' +
             `&key=${this.key}`
         this.request(url, data => {
+            console.log("getLive:" + JSON.stringify(data))
             if (!data.items[0])
                 this.emit('error', 'Can not find live.')
             else {
@@ -42,7 +44,7 @@ export class YouTube extends EventEmitter {
     }
 
     getUpcomingLive() {
-        const url = 'https://www.googleapis.com/youtube/v3/search' +
+        const url = '/search' +
             '?eventType=upcoming' +
             '&part=id' +
             `&channelId=${this.id}` +
@@ -60,11 +62,12 @@ export class YouTube extends EventEmitter {
 
     getChatId() {
         if (!this.liveId) return this.emit('error', 'Live id is invalid.')
-        const url = 'https://www.googleapis.com/youtube/v3/videos' +
+        const url = '/videos' +
             '?part=liveStreamingDetails' +
             `&id=${this.liveId}` +
             `&key=${this.key}`
         this.request(url, data => {
+            console.log('getChatId:' + JSON.stringify(data))
             if (!data.items.length)
                 this.emit('error', 'Can not find chat.')
             else {
@@ -81,40 +84,48 @@ export class YouTube extends EventEmitter {
      */
     getChat() {
         if (!this.chatId) return this.emit('error', 'Chat id is invalid.')
-        const url = 'https://www.googleapis.com/youtube/v3/liveChat/messages' +
+        const url = '/liveChat/messages' +
             `?liveChatId=${this.chatId}` +
             '&part=id,snippet,authorDetails' +
             '&maxResults=2000' +
             `&key=${this.key}`
         this.request(url, data => {
+            console.log('getChat:' + JSON.stringify(data))
             this.emit('json', data)
         })
     }
 
     request(url, callback) {
-        if(environment.ytb_proxy){
-            this.opt={
-                host: environment.ytb_proxy_host,
-                port: environment.ytb_proxy_port,
-                url: url,
-                method: 'GET',
-                json: true,
-            }
+        if (environment.ytb_proxy) {
+            url = environment.ytb_api_prefix + url
         }else{
-            this.opt={
-                url: url,
-                method: 'GET',
-                json: true,
-            }
+            url = environment.ytb_api_server + url
         }
-        request(this.opt, (error, response, data) => {
-            if (error)
+        console.log(url)
+        axios.get(url)
+            .then(response => {
+                console.log('axios.get.response:' + JSON.stringify(response))
+                if (response.status !== 200) {
+                    this.emit('error', response)
+                } else {
+                    callback(response)
+                }
+            })
+            .catch(error => {
+                console.log('axios.get.error:' + error)
                 this.emit('error', error)
-            else if (response.statusCode !== 200)
-                this.emit('error', data)
-            else
-                callback(data)
-        })
+            })
+            .then(function () {
+                // always executed
+            });
+        // request(this.opt, (error, response, data) => {
+        //     if (error)
+        //         this.emit('error', error)
+        //     else if (response.statusCode !== 200)
+        //         this.emit('error', data)
+        //     else
+        //         callback(data)
+        // })
     }
 
     /**
@@ -151,4 +162,4 @@ export class YouTube extends EventEmitter {
     }
 }
 
-module.exports = YouTube
+//module.exports = YouTube
