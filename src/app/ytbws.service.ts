@@ -27,7 +27,7 @@ export class YtbwsService {
         private proc: YtbMessageProcessorService) {
     }
 
-    connect(roomid: string): Observable<IMessage> {
+    connect(roomid: string, biliOwnerId: number): Observable<IMessage> {
         this.ws = new WebSocket(environment.ytb_chat_server);
         return new Observable(
             observer => {
@@ -48,7 +48,7 @@ export class YtbwsService {
                         console.log('Window Inactive');
                         return;
                     }
-                    this.proc.formMessage(e, observer)
+                    this.proc.formMessage(JSON.parse(e.data), biliOwnerId, observer)
                 };
                 this.ws.onerror = (e) => {
                     observer.error(e);

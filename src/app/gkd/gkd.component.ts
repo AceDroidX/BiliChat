@@ -175,19 +175,20 @@ export class GKDComponent {
         this.start(realRoomId); // 重连
       }
     );
-    if(!this.route.snapshot.queryParamMap.has('ytbRoomId')){
+    if (!this.route.snapshot.queryParamMap.has('ytbRoomId')) {
       return
     }
-    this.ytbws.connect(this.ytbproc.ytbRoomId).subscribe(
+    console.log('this.bili.ownerId:'+this.bili.ownerId.toString())
+    this.ytbws.connect(this.ytbproc.ytbRoomId,this.bili.ownerId).subscribe(
       message => {
         this.renderer.sendDanmaku(message);
       },
       e => {
-        console.error(e)
+        console.error(e.type)
         this.renderer.sendDanmaku(new DanmakuMessage(
           -1,
           'BILICHAT',
-          `YouTube弹幕错误:${e}`,
+          `YouTube弹幕错误:${e.type}`,
           0,
           true,
           undefined,
@@ -196,20 +197,18 @@ export class GKDComponent {
         setTimeout(() => this.start(realRoomId), 5000);
       },
       () => {
-        this.translate.get('DISCONNECTED').subscribe((value) => {
-          this.renderer.sendDanmaku(new DanmakuMessage(
-            -1,
-            'BILICHAT',
-            'YouTube弹幕连接断开',
-            0,
-            true,
-            undefined,
-            'assets/logo_icon.png'
-          ));
-        });
-        this.start(realRoomId); // 重连
+        this.renderer.sendDanmaku(new DanmakuMessage(
+          -1,
+          'BILICHAT',
+          'YouTube弹幕连接断开',
+          0,
+          true,
+          undefined,
+          'assets/logo_icon.png'
+        ));
+        setTimeout(() => this.start(realRoomId), 5000);
       }
-    )
+    );
   }
 
 }
