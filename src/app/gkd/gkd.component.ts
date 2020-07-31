@@ -132,7 +132,7 @@ export class GKDComponent {
     }
   }
 
-  start(realRoomId: number) {
+  connect2bili(realRoomId: number){
     this.translate.get('CONNECTING').subscribe((value) => {
       this.renderer.sendSystemInfo(value.replace('{realRoomId}', realRoomId));
     });
@@ -165,21 +165,24 @@ export class GKDComponent {
           this.translate.get('CONNECTCLOSED').subscribe((value) => {
             this.renderer.sendSystemInfo(value);
           });
-          setTimeout(() => this.start(realRoomId), 5000);
+          setTimeout(() => this.connect2bili(realRoomId), 5000);
         }
       },
       () => {
         this.translate.get('DISCONNECTED').subscribe((value) => {
           this.renderer.sendSystemInfo(value);
         });
-        this.start(realRoomId); // 重连
+        this.connect2bili(realRoomId); // 重连
       }
     );
+  }
+
+  connect2ytb(ytbRoomId,ownerId){
     if (!this.route.snapshot.queryParamMap.has('ytbRoomId')) {
       return
     }
     console.log('this.bili.ownerId:'+this.bili.ownerId.toString())
-    this.ytbws.connect(this.ytbproc.ytbRoomId,this.bili.ownerId).subscribe(
+    this.ytbws.connect(ytbRoomId,ownerId).subscribe(
       message => {
         this.renderer.sendDanmaku(message);
       },
@@ -194,7 +197,7 @@ export class GKDComponent {
           undefined,
           'assets/logo_icon.png'
         ));
-        setTimeout(() => this.start(realRoomId), 5000);
+        setTimeout(() => this.connect2ytb(ytbRoomId,ownerId), 5000);
       },
       () => {
         this.renderer.sendDanmaku(new DanmakuMessage(
@@ -206,9 +209,14 @@ export class GKDComponent {
           undefined,
           'assets/logo_icon.png'
         ));
-        setTimeout(() => this.start(realRoomId), 5000);
+        this.connect2ytb(ytbRoomId,ownerId)
       }
     );
+  }
+
+  start(realRoomId: number) {
+    this.connect2bili(realRoomId)
+    this.connect2ytb(this.ytbproc.ytbRoomId,this.bili.ownerId)
   }
 
 }
