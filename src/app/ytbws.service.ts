@@ -3,7 +3,7 @@ import { Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { YtbMessageProcessorService } from './ytb-msg-processor.service';
 import { IMessage, DanmakuMessage } from './danmaku.def';
-import { environment } from 'src/environments/environment';
+import { environment } from '../environments/environment';
 
 @Injectable({
     providedIn: 'root'
