@@ -10,7 +10,7 @@ import { GiftMessage, DanmakuMessage } from '../danmaku.def';
 import { GKDRendererComponent } from './gkd-renderer/gkd-renderer.component';
 import { GkdTickerRendererComponent } from './gkd-ticker-renderer/gkd-ticker-renderer.component';
 import { YtbMessageProcessorService } from '../ytb-msg-processor.service';
-import { YtbMsgService } from '../ytb-msg-processor.service';
+import { YtbwsService } from '../ytbws.service';
 
 @Component({
   selector: 'yt-live-chat-renderer',
@@ -37,7 +37,7 @@ export class GKDComponent {
     private http: HttpClient,
     private translate: TranslateService,
     private ytbproc: YtbMessageProcessorService,
-    private ytbmsg: YtbMsgService) { }
+    private ytbws: YtbwsService) { }
 
   ngAfterViewInit() {
     this.currentRoomId = this.route.snapshot.params['id'];
@@ -178,7 +178,7 @@ export class GKDComponent {
     if(!this.route.snapshot.queryParamMap.has('ytbRoomId')){
       return
     }
-    this.ytbmsg.connect(this.ytbproc.ytbRoomId).subscribe(
+    this.ytbws.connect(this.ytbproc.ytbRoomId).subscribe(
       message => {
         this.renderer.sendDanmaku(message);
       },
