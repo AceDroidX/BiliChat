@@ -35,7 +35,7 @@ export class YtbwsService {
                     this.ws.send(roomid)
                     observer.next(new DanmakuMessage(
                         -1,
-                        'BILICHAT',
+                        'BILICHAT-YtbVer',
                         'YouTube弹幕已连接',
                         0,
                         true,

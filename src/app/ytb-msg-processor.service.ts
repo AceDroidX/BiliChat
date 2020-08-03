@@ -16,19 +16,25 @@ export class YtbMessageProcessorService {
   loadAvatar = true;
   pure = false;
   ytbRoomId = null;
+  ytbShowTime = null;
 
   constructor(private http: HttpClient,
     private translate: TranslateService) {
   }
 
   formMessage(data: any, biliOwnerId: number, observer: Subscriber<IMessage>) {
-    console.log('biliOwnerId:'+biliOwnerId.toString())
+    console.log('biliOwnerId:' + biliOwnerId.toString())
     this.avatarPreload(data).subscribe(
       avatarUrl => {
+        var message = data.message
+        if (this.ytbShowTime) {
+          var date = new Date(data.timestamp)
+          message = message + date.toString().split(" ")[4]
+        }
         const l = new DanmakuMessage(
           biliOwnerId,//this.bili.ownerId  主播样式弹幕功能未做
           data.author.name,
-          data.message,
+          message,
           0,
           true,
           undefined,

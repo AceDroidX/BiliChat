@@ -84,6 +84,12 @@ export class GKDComponent {
     if (this.route.snapshot.queryParamMap.has('ytbRoomId')) {
       this.ytbproc.ytbRoomId = this.route.snapshot.queryParamMap.get('ytbRoomId');
     }
+    if (this.route.snapshot.queryParamMap.has('ytbChannelId')) {
+      this.ytbproc.ytbRoomId = this.route.snapshot.queryParamMap.get('ytbChannelId');
+    }
+    if (this.route.snapshot.queryParamMap.has('ytbShowTime')) {
+      this.ytbproc.ytbShowTime = this.route.snapshot.queryParamMap.get('ytbShowTime');
+    }
   }
 
   onload() {
@@ -132,7 +138,7 @@ export class GKDComponent {
     }
   }
 
-  connect2bili(realRoomId: number){
+  connect2bili(realRoomId: number) {
     this.translate.get('CONNECTING').subscribe((value) => {
       this.renderer.sendSystemInfo(value.replace('{realRoomId}', realRoomId));
     });
@@ -177,12 +183,9 @@ export class GKDComponent {
     );
   }
 
-  connect2ytb(ytbRoomId,ownerId){
-    if (!this.route.snapshot.queryParamMap.has('ytbRoomId')) {
-      return
-    }
-    console.log('this.bili.ownerId:'+this.bili.ownerId.toString())
-    this.ytbws.connect(ytbRoomId,ownerId).subscribe(
+  connect2ytb(ytbRoomId, ownerId) {
+    console.log('this.bili.ownerId:' + this.bili.ownerId.toString())
+    this.ytbws.connect(ytbRoomId, ownerId).subscribe(
       message => {
         this.renderer.sendDanmaku(message);
       },
@@ -190,33 +193,37 @@ export class GKDComponent {
         console.error(e.type)
         this.renderer.sendDanmaku(new DanmakuMessage(
           -1,
-          'BILICHAT',
+          'BILICHAT-YtbVer',
           `YouTube弹幕错误:${e.type}`,
           0,
           true,
           undefined,
           'assets/logo_icon.png'
         ));
-        setTimeout(() => this.connect2ytb(ytbRoomId,ownerId), 5000);
+        setTimeout(() => this.connect2ytb(ytbRoomId, ownerId), 5000);
       },
       () => {
         this.renderer.sendDanmaku(new DanmakuMessage(
           -1,
-          'BILICHAT',
+          'BILICHAT-YtbVer',
           'YouTube弹幕连接断开',
           0,
           true,
           undefined,
           'assets/logo_icon.png'
         ));
-        this.connect2ytb(ytbRoomId,ownerId)
+        this.connect2ytb(ytbRoomId, ownerId)
       }
     );
   }
 
   start(realRoomId: number) {
-    this.connect2bili(realRoomId)
-    this.connect2ytb(this.ytbproc.ytbRoomId,this.bili.ownerId)
+    if (!this.route.snapshot.queryParamMap.has('ytbOnly')) {
+      this.connect2bili(realRoomId)
+    }
+    if (this.ytbproc.ytbRoomId != null) {
+      this.connect2ytb(this.ytbproc.ytbRoomId, this.bili.ownerId)
+    }
   }
 
 }
